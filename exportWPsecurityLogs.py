@@ -6,10 +6,10 @@ from mysql.connector import errorcode
 import sys
 
 config = {
-    'user': 'scott',
-    'password': 'tiger',
-    'host': '127.0.0.1',
-    'database': 'employees',
+    'user': 'root',
+    'password': 'bitnami',
+    'host': '192.168.56.101',
+    'database': 'bitnami_wordpress',
     'raise_on_warnings': True,
 }
 
@@ -17,11 +17,23 @@ config = {
 def run():
     cnx = connect()
 
+    query = ("SELECT `occurrence_id`, `name`, `value`, `alert_id` FROM `wp_wsal_metadata` CROSS JOIN JOIN wp_wsal_occurrences ON occurrence_id = wp_wsal_occurrences.id ORDER BY `wp_wsal_metadata`.`occurrence_id` ASC ")
+
+    curA = cnx.cursor()
+
+    curA.execute(query)
+
+
+    # Iterate through the result of curA
+    for (db_id, occurrence_id, name, value) in curA:
+
+        print(db_id, occurrence_id, name, value)
+
 
 def connect():
-    cnx = None
     try:
         cnx = mysql.connector.connect(**config)
+        return cnx
     except mysql.connector.Error as err:
         if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
             print("Something is wrong with your user name or password")
@@ -32,8 +44,5 @@ def connect():
         else:
             print(err)
             sys.exit(1)
-    else:
-        cnx.close()
-    return cnx
 
 run()
