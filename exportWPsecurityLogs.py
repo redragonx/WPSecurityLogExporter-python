@@ -33,9 +33,6 @@ def run():
 
     occurrence_table_row_list = list(cur_occurrence.fetchall())
 
-    old_id = 1
-    changed = False
-
     csv_file_date = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
     csv_file_path = 'wpSecurityMainLog' + csv_file_date + '.csv'
 
@@ -50,6 +47,7 @@ def run():
 
         csv_writer = csv.writer(csvfile)
 
+        changed = True
         # Each event has multiple lines in the database table, so to filter an event, use the occurrence_id
         for (wsal_occurrence_id, name, value) in cur_wsal_metadata:
 
@@ -57,22 +55,12 @@ def run():
             print(metadata_row)
             csv_writer.writerow(metadata_row)
 
-            if old_id != wsal_occurrence_id:
-                changed = True
+        for (occurrence_id, site_id, alert_id, created_on) in occurrence_table_row_list:
+                new_date = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(created_on))
+                occurrence_row = occurrence_id, site_id, alert_id, new_date
 
-            # This loop appends information from the 2nd table at the end of every event.
-            for (occurrence_id, site_id, alert_id, created_on) in occurrence_table_row_list:
-                if changed and occurrence_id == wsal_occurrence_id:
-                    new_date = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(created_on))
-                    occurrence_row = occurrence_id, site_id, alert_id, new_date
-
-                    print(occurrence_row)
-                    csv_writer.writerow(occurrence_row)
-
-            old_id = wsal_occurrence_id
-            changed = False
-
-
+                print(occurrence_row)
+                csv_writer.writerow(occurrence_row)
 def connect():
     try:
         cnx = mysql.connector.connect(**config)
