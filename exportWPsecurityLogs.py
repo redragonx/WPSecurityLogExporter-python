@@ -47,7 +47,6 @@ def run():
 
         csv_writer = csv.writer(csvfile)
 
-        changed = True
         # Each event has multiple lines in the database table, so to filter an event, use the occurrence_id
         for (wsal_occurrence_id, name, value) in cur_wsal_metadata:
 
